@@ -10,7 +10,8 @@
     "start": "webpack serve --config ./config/webpack.config.dev.js"
   },
   "dependencies": {
-    "p5": "^1.4.0"
+    "p5": "^1.4.0",
+    "simplex-noise": "^3.0.0"
   },
   "devDependencies": {
     "adm-zip": "^0.5.9",
