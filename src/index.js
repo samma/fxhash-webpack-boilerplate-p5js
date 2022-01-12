@@ -5,19 +5,33 @@ import debounce from 'lodash.debounce';
 let w = window.innerWidth;
 let h = window.innerHeight;
 let s = Math.min(w, h);
+let colors;
 
 function setup() {
   createCanvas(w, h);
-}
+  background(150);
+  colors = generateColors(LabColor.RandomLabColor(), 50);
 
-function draw() {
-  background(224);
-
-  let l = new LabColor(100, 100, 0)
-  fill(l.getRGB());
+  fill(LabColor.RandomLabColor().getRGB());
   const rw = Math.floor(s / 3);
   rect(w / 2 - rw / 2, h / 2 - rw / 2, rw, rw);
-  noLoop();
+}
+
+function draw() {  
+    if(mouseIsPressed){
+        brushStroke(colors);
+    }
+}
+
+function brushStroke(colors) {
+    push()
+    for (let i = 0; i < colors.length; i++) {
+        const color = colors[i];
+        stroke(color.getRGB());
+        let dir = (mouseX - pmouseX) 
+        line(mouseX+i, mouseY, pmouseX+i, pmouseY);
+    }
+    pop()
 }
 
 window.onresize = debounce(() => {
@@ -30,6 +44,39 @@ window.onresize = debounce(() => {
 window.setup = setup;
 window.draw = draw;
 
+
+function generateColors(baseColor, numColors) {
+	let colors = []
+	for (let i = 0; i < numColors; i++) {
+
+		let colorChanel = Math.floor(random(3));
+		let dir = Math.floor(random(2)) - 1;
+		let strength = Math.floor(random(10));
+
+		if (dir < 0) {
+			dir = -1;
+		} else { 
+			dir = 1;
+		}
+
+		switch (colorChanel) {
+			case 0:
+				baseColor.seta(baseColor.a + dir * strength)
+				break;
+			case 1:
+				baseColor.setb(baseColor.b + dir * strength)
+				break;
+			case 2:
+				baseColor.setl(baseColor.l + dir * strength)
+				break;
+			default:
+				break;
+		}
+		colors.push(new LabColor(baseColor.l, baseColor.a, baseColor.b))	
+	}
+
+	return colors
+}
 
 // A Class called LabColor, which is a color in the LAB color space.
 class LabColor {
