@@ -1,26 +1,28 @@
-// Reference:
-// Reference: https://github.com/processing/p5.js/wiki/p5.js-overview#instantiation--namespace
-// https://github.com/processing/p5.js/wiki/Global-and-instance-mode
-import p5 from 'p5';
+import * as P5 from 'p5';
+import debounce from 'lodash.debounce';
 
-//var labcolor = require('./labcolor');
-import LabColor from './labcolor.js'; // not {User}, just User
+let w = window.innerWidth;
+let h = window.innerHeight;
+let s = Math.min(w, h);
 
-// import * as p5 from './p5.js';
+function setup() {
+  createCanvas(w, h);
+}
 
-var p = new p5(function(s) {
-  var w = 800
-  var h = 800
+function draw() {
+  background(224);
+  fill(240);
+  const rw = Math.floor(s / 3);
+  rect(w / 2 - rw / 2, h / 2 - rw / 2, rw, rw);
+  noLoop();
+}
 
-  let bgc = new LabColor(0, 0, 0);
+window.onresize = debounce(() => {
+  w = window.innerWidth;
+  h = window.innerHeight;
+  s = Math.min(w, h);
+  resizeCanvas(w, h);
+}, 50);
 
-  s.setup = () => {
-    s.createCanvas(w, h);
-  };
-
-  s.draw = () => {
-    s.background(bgc.getRGB());
-    s.fill(255);
-    s.rect(w/2, h/2, 50, 50);
-  };
-});
+window.setup = setup;
+window.draw = draw;

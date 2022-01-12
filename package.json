@@ -10,6 +10,7 @@
     "start": "webpack serve --config ./config/webpack.config.dev.js"
   },
   "dependencies": {
+    "lodash.debounce": "^4.0.8",
     "p5": "^1.4.0"
   },
   "devDependencies": {
