@@ -28,11 +28,14 @@ function brushStroke(colors) {
     for (let i = 0; i < colors.length; i++) {
         const color = colors[i];
         stroke(color.getRGB());
-        let dir = (mouseX - pmouseX) 
-        line(mouseX+i, mouseY, pmouseX+i, pmouseY);
+        let dirx = (mouseX - pmouseX)
+        let diry = (mouseY - pmouseY) 
+
+        line((mouseX+diry), (mouseY-dirx), (mouseX-diry), (mouseY+dirx));
     }
     pop()
 }
+
 
 window.onresize = debounce(() => {
   w = window.innerWidth;
