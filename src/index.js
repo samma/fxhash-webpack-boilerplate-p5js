@@ -1,6 +1,7 @@
 import * as p5 from 'p5';
 
 import debounce from 'lodash.debounce';
+import { without } from 'lodash';
 
 let w = window.innerWidth;
 let h = window.innerHeight;
@@ -11,16 +12,59 @@ function setup() {
   createCanvas(w, h);
   background(150);
   colors = generateColors(LabColor.RandomLabColor(), 200);
-  // print colors
 
-  fill(LabColor.RandomLabColor().getRGB());
-  const rw = Math.floor(s / 3);
-  rect(w / 2 - rw / 2, h / 2 - rw / 2, rw, rw);
+
+
+  let segments = 8
+
+  for (let i = 0; i < segments; i++) {
+    colors = generateColors(LabColor.RandomLabColor(), 200);
+    let startAngle = map(i, 0, segments, 0, TWO_PI);
+    let endAngle = startAngle + TWO_PI / segments;
+    drawFanOfColors(w / 2, h / 2, 500, startAngle, endAngle, colors, 0.01, 15, 30);
+  }
+
+}
+
+function drawFanOfColors(x, y, radius, startAngle, endAngle, colors, step, strokeW, numArcs) {
+    let n = numArcs
+    for (let i = 0; i < n; i++) {
+      let r = lerp(0, radius, i / n);
+      drawArc(x, y, r, startAngle, endAngle, colors[i].getRGB(), step, strokeW);
+    }
+}
+
+
+
+function drawArc(x, y, radius, startAngle, endAngle, color, stepSize, strokeW) {
+  if (stepSize == undefined) {
+    stepSize = 0.01;
+  }
+  fill(color);
+  stroke(color);
+  strokeWeight(strokeW);
+  let angle = startAngle;
+  let xprev = x + radius * cos(angle); 
+  let yprev = y + radius * sin(angle);
+  while (angle < endAngle) {
+    let xpos = x + radius * cos(angle);
+    let ypos = y + radius * sin(angle);
+    line(xpos, ypos, xprev, yprev);
+    xprev = xpos;
+    yprev = ypos;
+    angle += stepSize;
+  }
+}
+
+function drawSQ() {
+    fill(LabColor.RandomLabColor().getRGB());
+    const rw = Math.floor(s / 3);
+    rect(w / 2 - rw / 2, h / 2 - rw / 2, rw, rw);
 }
 
 function draw() {  
     if(mouseIsPressed){
-        brushStroke(colors);
+        //brushStroke(colors);
     }
 }
 
@@ -45,10 +89,11 @@ function brushStroke(colors) {
 
 
     // Draw the palette
-    for (let i = 0; i < colors.length; i++) {
+    for (let i = 0; i < colors.length; i+=12) {
         const color = colors[i].getRGB()
         let m = map(i, 0, colors.length, -colors.length/2, colors.length/2);
         stroke(color)
+        strokeWeight(10)
         //noStroke()
         line(start.x + diry*m, start.y - dirx*m, end.x + diry*m, end.y - dirx*m);
     }
@@ -91,34 +136,47 @@ window.draw = draw;
 function generateColors(baseColor, numColors) {
 	let colors = []
 	for (let i = 0; i < numColors; i++) {
+        
+        let nCol = newCol(baseColor); // Ensure that the randomly generated colors are not too similar to the base color
+        while(nCol.distance(baseColor) < 20){
+            print(nCol.distance(baseColor))
+            nCol = newCol(baseColor);
+        }
 
-		let colorChanel = Math.floor(random(3));
-		let dir = Math.floor(random(2)) - 1;
-		let strength = Math.floor(random(20));
-
-		if (dir < 0) {
-			dir = -1;
-		} else { 
-			dir = 1;
-		}
-
-		switch (colorChanel) {
-			case 0:
-				baseColor.seta(baseColor.a + dir * strength)
-				break;
-			case 1:
-				baseColor.setb(baseColor.b + dir * strength)
-				break;
-			case 2:
-				baseColor.setl(baseColor.l + dir * strength)
-				break;
-			default:
-				break;
-		}
-		colors.push(new LabColor(baseColor.l, baseColor.a, baseColor.b))	
+		colors.push(nCol)	
 	}
 
 	return colors
+}
+
+function newCol(baseColor) {
+    let colorChanel = Math.floor(random(3));
+    let dir = Math.floor(random(2)) - 1;
+    let strength = Math.floor(random(30));
+
+    if (dir < 0) {
+        dir = -1;
+    } else { 
+        dir = 1;
+    }
+
+    let newColor = new LabColor(baseColor.l, baseColor.a, baseColor.b);
+
+    switch (colorChanel) {
+        case 0:
+            newColor.seta(newColor.a + dir * strength)
+            break;
+        case 1:
+            newColor.setb(newColor.b + dir * strength)
+            break;
+        case 2:
+            newColor.setl(newColor.l + dir * strength)
+            break;
+        default:
+            break;
+    }
+
+    return newColor
 }
 
 // A Class called LabColor, which is a color in the LAB color space.
