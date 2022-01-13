@@ -1,7 +1,7 @@
 import * as p5 from 'p5';
 
 import debounce from 'lodash.debounce';
-import { without } from 'lodash';
+import { random } from 'lodash';
 
 let w = window.innerWidth;
 let h = window.innerHeight;
@@ -43,15 +43,16 @@ function drawArc(x, y, radius, startAngle, endAngle, color, stepSize, strokeW) {
   fill(color);
   stroke(color);
   strokeWeight(strokeW);
+  strokeCap(SQUARE);
   let angle = startAngle;
   let xprev = x + radius * cos(angle); 
   let yprev = y + radius * sin(angle);
-  while (angle < endAngle) {
+  while (angle <= endAngle) {
     let xpos = x + radius * cos(angle);
     let ypos = y + radius * sin(angle);
     line(xpos, ypos, xprev, yprev);
-    xprev = xpos;
-    yprev = ypos;
+    xprev = x + radius * cos(angle-stepSize/2); // To avoid gaps between segments
+    yprev = y + radius * sin(angle-stepSize/2);
     angle += stepSize;
   }
 }
@@ -138,7 +139,7 @@ function generateColors(baseColor, numColors) {
 	for (let i = 0; i < numColors; i++) {
         
         let nCol = newCol(baseColor); // Ensure that the randomly generated colors are not too similar to the base color
-        while(nCol.distance(baseColor) < 20){
+        while(nCol.distance(baseColor) < 10){
             print(nCol.distance(baseColor))
             nCol = newCol(baseColor);
         }
@@ -152,7 +153,7 @@ function generateColors(baseColor, numColors) {
 function newCol(baseColor) {
     let colorChanel = Math.floor(random(3));
     let dir = Math.floor(random(2)) - 1;
-    let strength = Math.floor(random(30));
+    let strength = Math.floor(random(15)+15);
 
     if (dir < 0) {
         dir = -1;
