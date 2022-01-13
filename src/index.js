@@ -25,17 +25,43 @@ function draw() {
 
 function brushStroke(colors) {
     push()
-    for (let i = 0; i < colors.length; i++) {
-        const color = colors[i];
-        stroke(color.getRGB());
-        let dirx = (mouseX - pmouseX)
-        let diry = (mouseY - pmouseY) 
 
-        line((mouseX+diry), (mouseY-dirx), (mouseX-diry), (mouseY+dirx));
-    }
+    let firstLine = 
+
+    //for (let i = 0; i < colors.length; i++) {
+        //const color = color(100)
+        //stroke(100);
+        //let dirx = (mouseX - pmouseX)
+        //let diry = (mouseY - pmouseY) 
+
+        // A line that is perpendicular to the direction of the mouse movement
+        //line((mouseX+diry), (mouseY-dirx), (mouseX-diry), (mouseY+dirx));
+    //}
     pop()
+
+    drawPerpendicularLines(createVector(mouseX, mouseY), createVector(pmouseX, pmouseY), 50);
 }
 
+function drawPerpendicularLines(vec1, vec2, lineLength) {
+    push()
+    stroke(0);
+
+    let dirx = (vec1.x - vec2.x)
+    let diry = (vec1.y - vec2.y)
+    
+    // Make the perp line a constant length
+    let s = sqrt(dirx * dirx + diry * diry)
+    dirx /= s
+    diry /= s
+
+    dirx *= lineLength
+    diry *= lineLength
+
+    line((mouseX+diry), (mouseY-dirx), (mouseX-diry), (mouseY+dirx));
+
+    pop()
+}
+    
 
 window.onresize = debounce(() => {
   w = window.innerWidth;
