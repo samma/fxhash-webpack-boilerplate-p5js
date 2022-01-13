@@ -10,7 +10,8 @@ let colors;
 function setup() {
   createCanvas(w, h);
   background(150);
-  colors = generateColors(LabColor.RandomLabColor(), 50);
+  colors = generateColors(LabColor.RandomLabColor(), 200);
+  // print colors
 
   fill(LabColor.RandomLabColor().getRGB());
   const rw = Math.floor(s / 3);
@@ -24,22 +25,35 @@ function draw() {
 }
 
 function brushStroke(colors) {
-    push()
 
-    let firstLine = 
+    let start = createVector(mouseX, mouseY)
+    let end = createVector(pmouseX, pmouseY)
+    let brushWidth = colors.length
 
-    //for (let i = 0; i < colors.length; i++) {
-        //const color = color(100)
-        //stroke(100);
-        //let dirx = (mouseX - pmouseX)
-        //let diry = (mouseY - pmouseY) 
+    let dirx = (start.x - end.x)
+    let diry = (start.y - end.y)
+    
+    // Make the perp line a constant length
+    let s = sqrt(dirx * dirx + diry * diry)
+    dirx /= s
+    diry /= s
 
-        // A line that is perpendicular to the direction of the mouse movement
-        //line((mouseX+diry), (mouseY-dirx), (mouseX-diry), (mouseY+dirx));
-    //}
-    pop()
+    //dirx *= brushWidth
+    //diry *= brushWidth
 
-    drawPerpendicularLines(createVector(mouseX, mouseY), createVector(pmouseX, pmouseY), 50);
+    line(start.x, start.y, end.x, end.y);
+
+
+    // Draw the palette
+    for (let i = 0; i < colors.length; i++) {
+        const color = colors[i].getRGB()
+        let m = map(i, 0, colors.length, -colors.length/2, colors.length/2);
+        stroke(color)
+        //noStroke()
+        line(start.x + diry*m, start.y - dirx*m, end.x + diry*m, end.y - dirx*m);
+    }
+
+    //drawPerpendicularLines(start, end, brushWidth/2);
 }
 
 function drawPerpendicularLines(vec1, vec2, lineLength) {
@@ -80,7 +94,7 @@ function generateColors(baseColor, numColors) {
 
 		let colorChanel = Math.floor(random(3));
 		let dir = Math.floor(random(2)) - 1;
-		let strength = Math.floor(random(10));
+		let strength = Math.floor(random(20));
 
 		if (dir < 0) {
 			dir = -1;
