@@ -3,26 +3,37 @@ import * as p5 from 'p5';
 import debounce from 'lodash.debounce';
 import { random } from 'lodash';
 
-let w = window.innerWidth;
-let h = window.innerHeight;
+let w = 1000//window.innerWidth;
+let h = 1000//window.innerHeight;
 let s = Math.min(w, h);
 let colors;
 
 function setup() {
-  createCanvas(w, h);
-  background(" #F9F8F4");
+    createCanvas(w, h);
+    background(LabColor.RandomLabColor().getRGB());
 
-  let size = 200
-  // Two forloops 3 by 3
-    for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            push()
-            translate(2*i*size, 2*j*size)
-            drawCircularThingy(i,j,size)
-            pop()        
-        }
-    }
+    noLoop()
 
+    addNoise() 
+    drawGridOfStuff()
+
+    //fill(0)
+    //circle(w/2, h/2, s/2);
+
+}
+
+function drawGridOfStuff() {
+    let size = 200
+    // Two forloops 3 by 3
+      for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+              push()
+              translate(2*i*size, 2*j*size)
+              drawCircularThingy(i,j,size)
+              pop()        
+          }
+      }
+  
 }
 
 function drawCircularThingy(x,y,radius) {
@@ -42,11 +53,6 @@ function drawFanOfColors(x, y, radius, startAngle, endAngle, colors, step, strok
       drawArc(x, y, r+random(1,100), startAngle+random(1), endAngle+random(3), colors[i].getRGB(), step, strokeW);
     }
 }
-
-function addRandomNess() {
-    return random(1,100)
-}
-
 
 function drawArc(x, y, radius, startAngle, endAngle, color, stepSize, strokeW) {
   if (stepSize == undefined) {
@@ -190,6 +196,28 @@ function newCol(baseColor) {
     }
 
     return newColor
+}
+
+function addNoise() {
+    const canvas = document.getElementById( 'defaultCanvas0' );
+    const ctx = canvas.getContext( '2d' );
+    // some black and transparent noise
+    const data = Uint32Array.from( {length: w*h }, () => Math.random() > 0.7 ? 0xFF000000 : 0 );
+    const img = new ImageData( new Uint8ClampedArray( data.buffer ), w, h );
+
+    ctx.putImageData( img, 0, 0 );
+
+    ctx.fillStyle = ctx.createLinearGradient( 0, 0, 0, h );
+    ctx.fillStyle.addColorStop( 0.0, "#00000040" );
+    ctx.fillStyle.addColorStop( 1.0, "#00000020" );
+    // apply transparency gradient on noise (dim top)
+    ctx.globalCompositeOperation = "hard-light";
+    ctx.fillRect( 0, 0, w, h );
+    // apply black of the gradient on noise (darken bottom)
+    //ctx.globalCompositeOperation = "multiply";
+    //ctx.fillRect( 0, 0, w, h ); 
+
+
 }
 
 // A Class called LabColor, which is a color in the LAB color space.
