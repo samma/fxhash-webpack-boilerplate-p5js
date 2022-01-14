@@ -10,30 +10,42 @@ let colors;
 
 function setup() {
   createCanvas(w, h);
-  background(150);
-  colors = generateColors(LabColor.RandomLabColor(), 200);
+  background(" #F9F8F4");
 
+  let size = 200
+  // Two forloops 3 by 3
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            push()
+            translate(2*i*size, 2*j*size)
+            drawCircularThingy(i,j,size)
+            pop()        
+        }
+    }
 
+}
 
-  let segments = 8
-
-  for (let i = 0; i < segments; i++) {
-    colors = generateColors(LabColor.RandomLabColor(), 200);
-    let startAngle = map(i, 0, segments, 0, TWO_PI);
-    let endAngle = startAngle + TWO_PI / segments;
-    drawFanOfColors(w / 2, h / 2, 500, startAngle, endAngle, colors, 0.01, 15, 30);
-  }
-
+function drawCircularThingy(x,y,radius) {
+    let segments = 8
+    for (let i = 0; i < segments; i++) {
+      let colors = generateColors(LabColor.RandomLabColor(), 200);
+      let startAngle = map(i, 0, segments, 0, TWO_PI);
+      let endAngle = startAngle + TWO_PI / segments;
+      drawFanOfColors(x+radius, y+radius, radius, startAngle, endAngle, colors, 0.01, 15, 30);
+    }
 }
 
 function drawFanOfColors(x, y, radius, startAngle, endAngle, colors, step, strokeW, numArcs) {
     let n = numArcs
     for (let i = 0; i < n; i++) {
       let r = lerp(0, radius, i / n);
-      drawArc(x, y, r, startAngle, endAngle, colors[i].getRGB(), step, strokeW);
+      drawArc(x, y, r+random(1,100), startAngle+random(1), endAngle+random(3), colors[i].getRGB(), step, strokeW);
     }
 }
 
+function addRandomNess() {
+    return random(1,100)
+}
 
 
 function drawArc(x, y, radius, startAngle, endAngle, color, stepSize, strokeW) {
@@ -48,8 +60,8 @@ function drawArc(x, y, radius, startAngle, endAngle, color, stepSize, strokeW) {
   let xprev = x + radius * cos(angle); 
   let yprev = y + radius * sin(angle);
   while (angle <= endAngle) {
-    let xpos = x + radius * cos(angle);
-    let ypos = y + radius * sin(angle);
+    let xpos = x + radius * cos(angle) ;
+    let ypos = y + radius * sin(angle) ;
     line(xpos, ypos, xprev, yprev);
     xprev = x + radius * cos(angle-stepSize/2); // To avoid gaps between segments
     yprev = y + radius * sin(angle-stepSize/2);
