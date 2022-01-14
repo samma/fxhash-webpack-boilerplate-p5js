@@ -1,34 +1,45 @@
 import * as p5 from 'p5';
 
 import debounce from 'lodash.debounce';
-import { random } from 'lodash';
 
-let w = 1000//window.innerWidth;
-let h = 1000//window.innerHeight;
-let s = Math.min(w, h);
-let colors;
+let s = Math.min(window.innerWidth, window.innerHeight);
+let seed
 
 function setup() {
-    createCanvas(w, h);
-    background(LabColor.RandomLabColor().getRGB());
-
+    seed=int(fxrand() * 100000000); // FXHASH seed rand
+    createCanvas(s, s);
     noLoop()
-
-    addNoise() 
-    drawGridOfStuff()
-
-    //fill(0)
-    //circle(w/2, h/2, s/2);
-
+    drawArt()
 }
+
+function drawArt() {
+    randomSeed(seed)
+    addNoise() 
+    randomSeed(seed)
+    fill(LabColor.RandomLabColor().getRGB());
+    rect(0,0,s,s)
+    drawGridOfStuff()
+}
+
+window.onresize = debounce(() => {
+    s = Math.min( window.innerWidth, window.innerHeight);
+    resizeCanvas(s, s);
+    drawArt()
+  }, 50);
+  
+  window.setup = setup;
+  window.draw = draw;
 
 function drawGridOfStuff() {
     let size = 200
     // Two forloops 3 by 3
-      for (let i = 0; i < 3; i++) {
-          for (let j = 0; j < 3; j++) {
+    translate(-(size/2 + random(100,300)), -(size/2 + random(100,300)))
+
+      for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
               push()
               translate(2*i*size, 2*j*size)
+              //rotate(random(0,1));
               drawCircularThingy(i,j,size)
               pop()        
           }
@@ -42,7 +53,7 @@ function drawCircularThingy(x,y,radius) {
       let colors = generateColors(LabColor.RandomLabColor(), 200);
       let startAngle = map(i, 0, segments, 0, TWO_PI);
       let endAngle = startAngle + TWO_PI / segments;
-      drawFanOfColors(x+radius, y+radius, radius, startAngle, endAngle, colors, 0.01, 15, 30);
+      drawFanOfColors(x+radius, y+radius, radius+Math.floor(random(20)), startAngle, endAngle, colors, 0.05, 15, 25+Math.floor(random(20)));
     }
 }
 
@@ -140,18 +151,6 @@ function drawPerpendicularLines(vec1, vec2, lineLength) {
     pop()
 }
     
-
-window.onresize = debounce(() => {
-  w = window.innerWidth;
-  h = window.innerHeight;
-  s = Math.min(w, h);
-  resizeCanvas(w, h);
-}, 50);
-
-window.setup = setup;
-window.draw = draw;
-
-
 function generateColors(baseColor, numColors) {
 	let colors = []
 	for (let i = 0; i < numColors; i++) {
@@ -202,22 +201,18 @@ function addNoise() {
     const canvas = document.getElementById( 'defaultCanvas0' );
     const ctx = canvas.getContext( '2d' );
     // some black and transparent noise
-    const data = Uint32Array.from( {length: w*h }, () => Math.random() > 0.7 ? 0xFF000000 : 0 );
-    const img = new ImageData( new Uint8ClampedArray( data.buffer ), w, h );
+    const data = Uint32Array.from( {length: s*s }, () => random() > 0.7 ? 0xFF000000 : 0 );
+    const img = new ImageData( new Uint8ClampedArray( data.buffer ), s, s );
 
     ctx.putImageData( img, 0, 0 );
 
-    ctx.fillStyle = ctx.createLinearGradient( 0, 0, 0, h );
+    ctx.fillStyle = ctx.createLinearGradient( 0, 0, 0, s );
     ctx.fillStyle.addColorStop( 0.0, "#00000040" );
     ctx.fillStyle.addColorStop( 1.0, "#00000020" );
     // apply transparency gradient on noise (dim top)
-    ctx.globalCompositeOperation = "hard-light";
-    ctx.fillRect( 0, 0, w, h );
-    // apply black of the gradient on noise (darken bottom)
-    //ctx.globalCompositeOperation = "multiply";
-    //ctx.fillRect( 0, 0, w, h ); 
+    ctx.globalCompositeOperation = "hard-light"; //    ctx.globalCompositeOperation = "luminosity";
 
-
+    ctx.fillRect( 0, 0, s, s );
 }
 
 // A Class called LabColor, which is a color in the LAB color space.
